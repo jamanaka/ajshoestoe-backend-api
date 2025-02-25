@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors")
 const dotenv = require("dotenv")
 const app = express();
-const authRoute = require("../routes/authRoute")
+const authRoute = require("./routes/authRoute")
 
 const mongoose = require("mongoose");
 
@@ -15,12 +15,13 @@ mongoose
 
 
 app.use(cors({
-    origin: ["http://localhost:3001", "https://ajshoestore.vercel.app"],
+    origin: "https://ajshoestore.vercel.app",
     methods: ["POST", "GET", "PUT", "DELETE"],
     credential: true,
 }))
 
 app.use("/api", authRoute)
+PORT = 5000;
 app.use(express.json())
 
 app.get("/", (req, res) => {
