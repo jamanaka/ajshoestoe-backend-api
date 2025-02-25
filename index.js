@@ -8,10 +8,9 @@ const mongoose = require("mongoose");
 
 const MongoDB = "mongodb+srv://ajamanka:Amadou567@ajshoestore.jumg8.mongodb.net"
 
-mongoose
-  .connect(MongoDB)
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.error("MongoDB connection error:", err));
+mongoose.connect(MongoDB
+).then(() => console.log("Connected to MongoDB")
+).catch((err) => console.error("MongoDB connection error:", err));
 
 
 app.use(cors({
