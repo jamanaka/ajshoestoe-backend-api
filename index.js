@@ -8,7 +8,7 @@ app.use(express.json())
 
 const mongoose = require("mongoose");
 
-const MongoDB = "mongodb+srv://ajamanka:Amadou567@ajshoestore.jumg8.mongodb.net/ajshoestore?retryWrites=true&w=majority"
+const MongoDB = "mongodb+srv://ajamanka:Amadou567@ajshoestore.jumg8.mongodb.net/?retryWrites=true&w=majority&appName=ajshoestore"
 
 mongoose.connect(MongoDB
 ).then(() => console.log("Connected to MongoDB")
@@ -20,7 +20,7 @@ app.use(cors({
     credential: true,
 }))
 
-app.use("/api", authRoute)
+app.use("/api/auth", authRoute)
 
 app.get("/", (req, res) => {
   res.send("Hello, Express.js Backend!");
