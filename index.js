@@ -8,7 +8,10 @@ const mongoose = require("mongoose");
 
 const MongoDB = "mongodb+srv://ajamanka:Amadou567@ajshoestore.jumg8.mongodb.net"
 
-mongoose.connect(MongoDB
+mongoose.connect(MongoDB, { 
+  useNewUrlParser: true, 
+  useUnifiedTopology: true 
+}
 ).then(() => console.log("Connected to MongoDB")
 ).catch((err) => console.error("MongoDB connection error:", err));
 
@@ -20,7 +23,7 @@ app.use(cors({
 }))
 
 app.use("/api", authRoute)
-PORT = 5000;
+// PORT = 5000;
 app.use(express.json())
 
 app.get("/", (req, res) => {
