@@ -26,12 +26,11 @@ const UserSchema = new mongoose.Schema(
     },
     confirmPassword: {
       type: String,
-      required: true,
+      required: false,
     },
     address: {
       type: String,
       required: true,
-      unique: true,
       uppercase: true,
       trim: true,
     },

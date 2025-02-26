@@ -15,13 +15,18 @@ mongoose.connect(MongoDB
 ).catch((err) => console.error("MongoDB connection error:", err));
 
 app.use(cors({
-    origin: "https://ajshoestore.vercel.app",
-    methods: ["POST", "GET", "PUT", "DELETE"],
-    credential: true,
-}))
-
+  origin: ["http://localhost:3000", "https://ajshoestore.vercel.app"],
+  methods: ["POST", "GET", "PUT", "DELETE"],
+  credentials: true,
+}));
 app.use("/api/auth", authRoute)
 
 app.get("/", (req, res) => {
   res.send("Hello, Express.js Backend!");
 });
+
+PORT = 5000
+app.listen((PORT), (req, res) =>{
+  console.log(`server runing on port ${PORT}`);
+  
+})
