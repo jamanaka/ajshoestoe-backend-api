@@ -19,11 +19,11 @@ app.use(cors({
   methods: ["POST", "GET", "PUT", "DELETE"],
   credentials: true,
 }));
-app.use("/api/auth", authRoute)
 
 app.get("/", (req, res) => {
-  res.send("Hello, Express.js Backend!");
+  res.send("Hello, AJ Shoe Store Express.js Backend!");
 });
+app.use("/api/auth", authRoute)
 
 PORT = 5000
 app.listen((PORT), (req, res) =>{
