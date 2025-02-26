@@ -6,7 +6,7 @@ const authRoute = require("./routes/authRoute")
 
 const mongoose = require("mongoose");
 
-const MongoDB = "mongodb+srv://ajamanka:Amadou567@ajshoestore.jumg8.mongodb.net"
+const MongoDB = "mongodb+srv://ajamanka:Amadou567@ajshoestore.jumg8.mongodb.net/ajshoestore?retryWrites=true&w=majority"
 
 mongoose.connect(MongoDB, { 
   useNewUrlParser: true, 
@@ -15,7 +15,7 @@ mongoose.connect(MongoDB, {
 ).then(() => console.log("Connected to MongoDB")
 ).catch((err) => console.error("MongoDB connection error:", err));
 
-
+app.use(express.json())
 app.use(cors({
     origin: "https://ajshoestore.vercel.app",
     methods: ["POST", "GET", "PUT", "DELETE"],
@@ -23,8 +23,6 @@ app.use(cors({
 }))
 
 app.use("/api", authRoute)
-// PORT = 5000;
-app.use(express.json())
 
 app.get("/", (req, res) => {
   res.send("Hello, Express.js Backend!");
