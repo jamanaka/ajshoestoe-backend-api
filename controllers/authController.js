@@ -1,10 +1,5 @@
 const User = require("../models/userModel");
 const bcrypt = require("bcryptjs");
-const express = require("express")
-const app = express();
-
-// Middleware to parse JSON bodies
-app.use(express.json());
 
 const CreateUser = async (req, res) => {
   try {
