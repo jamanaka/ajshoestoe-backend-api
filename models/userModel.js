@@ -32,7 +32,6 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
       uppercase: true,
-      trim: true,
     },
     role: {
       type: String,
