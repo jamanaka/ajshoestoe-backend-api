@@ -1,36 +1,63 @@
-// 1️⃣ Import Dependencies
-require("dotenv").config(); // Load environment variables
+require("dotenv").config();
 const express = require("express");
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
 const mongoose = require("mongoose");
 const cors = require("cors");
+const MongoStore = require('connect-mongo');
 
-// 2️⃣ Initialize Express App
 const app = express();
 
-// 3️⃣ Middleware
-app.use(express.json()); // Allows parsing of JSON requests
+app.use(cookieParser());
+app.use(express.json());
+const allowedOrigins = ["http://localhost:3000", "https://ajshoestore.vercel.app"];
 app.use(cors({
-  origin: ["http://localhost:3000", "https://ajshoestore.vercel.app"],
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ["POST", "GET", "PUT", "DELETE"],
   credentials: true,
 }));
 
-// 4️⃣ Connect to MongoDB
-const MongoDB = process.env.MONGO_URI;
-mongoose.connect(MongoDB)
-  .then(() => console.log("✅ Connected to MongoDB"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+app.set('trust proxy', 1); // Trust the first proxy
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // True in production
+    maxAge: 1000 * 60 * 60 * 24, // 1 day
+    httpOnly: true,
+    sameSite: 'lax' // Add SameSite attribute for CSRF protection
+  }
+}));
 
-// 5️⃣ Import Routes
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
+});
+
+mongoose.connect(process.env.MONGO_URI, {
+  retryWrites: true, // Enable retryable writes
+  w: 'majority', // Write concern for majority of replicas
+})
+  .then(() => console.log("✅ Connected to MongoDB"))
+  .catch((err) => {
+    console.error("❌ MongoDB connection error:", err);
+    process.exit(1); // Exit the process if MongoDB connection fails
+  });
 const authRoute = require("./routes/authRoute");
 
-// 6️⃣ Define Routes
 app.get("/", (req, res) => {
   res.send("Hello, AJ Shoe Store Express.js Backend!");
 });
 app.use("/api/auth", authRoute);
 
-// 7️⃣ Start the Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);

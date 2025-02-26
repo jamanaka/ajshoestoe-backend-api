@@ -1,9 +1,11 @@
-const { CreateUser, Login, GetUser } = require("../controllers/authController");
+const { CreateUser, Login, Logout, GetUser } = require("../controllers/authController");
 const express = require("express");
 const router = express.Router();
 
-router.post("/create-user", CreateUser);
-router.post("/login", Login);
-router.get("/users", GetUser);
+// Routes
+router.post("/create-user", CreateUser); // Create a new user
+router.post("/login", Login); // Login user
+router.post("/logout", Logout); // Logout user
+router.get("/users", GetUser); // Get all users (for testing)
 
 module.exports = router;
