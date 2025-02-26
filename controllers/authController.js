@@ -15,9 +15,9 @@ const CreateUser = async (req, res) => {
     }
 
     // Check if passwords match
-    if (password !== confirmPassword) {
-      return res.status(400).json({ message: "Passwords do not match" });
-    }
+    // if (password !== confirmPassword) {
+    //   return res.status(400).json({ message: "Passwords do not match" });
+    // }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
