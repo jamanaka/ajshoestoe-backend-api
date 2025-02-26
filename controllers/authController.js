@@ -1,10 +1,18 @@
 const User = require("../models/userModel");
 const bcrypt = require("bcryptjs");
+const express = require("express")
+const app = express();
+
+// Middleware to parse JSON bodies
+app.use(express.json());
 
 const CreateUser = async (req, res) => {
   try {
-    const { fullName, email, phoneNumber, password, confirmPassword, address } =
-      req.body;
+    const { fullName, email, phoneNumber, password, confirmPassword, address } = req.body;
+
+    if(!fullName){
+      return res.status(400).json({ message: "name is required"})
+    }
 
     // Check if email exists
     if (!email) {
