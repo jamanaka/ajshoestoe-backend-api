@@ -88,16 +88,26 @@ const Login = async (req, res) => {
       fullName: user.fullName,
     };
 
-    // Respond with success message (exclude password in response)
-    const userResponse = { ...user.toObject() };
-    delete userResponse.password;
+    // Save session before responding
+    req.session.save((err) => {
+      if (err) {
+        console.error("Session save error:", err);
+        return res.status(500).json({ message: "Session could not be saved" });
+      }
 
-    res.status(200).json({ message: "Login successful", user: userResponse });
+      // Respond with success message (exclude password in response)
+      const userResponse = { ...user.toObject() };
+      delete userResponse.password;
+
+      res.status(200).json({ message: "Login successful", user: userResponse });
+    });
+
   } catch (error) {
     console.error("Error in Login:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
 
 // Logout user
 const Logout = async (req, res) => {
