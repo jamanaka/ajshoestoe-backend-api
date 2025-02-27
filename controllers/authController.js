@@ -7,10 +7,10 @@ const CreateUser = async (req, res) => {
   try {
     const { fullName, email, phoneNumber, password, confirmPassword, address } = req.body;
 
-    // Validate inputs
-    if (!fullName || !email || !phoneNumber || !password || !confirmPassword) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
+    // // Validate inputs
+    // if (!fullName || !email || !phoneNumber || !password || !confirmPassword) {
+    //   return res.status(400).json({ message: "All fields are required" });
+    // }
 
     // Validate email format
     if (!validator.isEmail(email)) {
