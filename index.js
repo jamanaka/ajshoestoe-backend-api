@@ -33,7 +33,7 @@ app.use(session({
     secure: process.env.NODE_ENV === 'production', // True in production
     maxAge: 1000 * 60 * 60 * 24, // 1 day
     httpOnly: true,
-    sameSite: 'lax' // Add SameSite attribute for CSRF protection
+    sameSite: 'none' // Add SameSite attribute for CSRF protection
   }
 }));
 
