@@ -5,11 +5,11 @@ const validator = require("validator");
 // Create a new user
 const CreateUser = async (req, res) => {
   try {
-    const { fullName, email, phoneNumber, password, confirmPassword } =
+    const { fullName, email, phoneNumber, password, confirmPassword, address } =
       req.body;
 
     // Validate inputs
-    // if (!fullName || !email || !phoneNumber || !password || !confirmPassword) {
+    // if (!fullName || !email || !phoneNumber || !password || !confirmPassword || address) {
     //   return res.status(400).json({ message: "All fields are required" });
     // }
 
@@ -17,11 +17,6 @@ const CreateUser = async (req, res) => {
     if (!validator.isEmail(email)) {
       return res.status(400).json({ message: "Invalid email format" });
     }
-
-    // // Validate phone number format
-    // if (!validator.isMobilePhone(phoneNumber, "any")) {
-    //   return res.status(400).json({ message: "Invalid phone number format" });
-    // }
 
     // Check password length
     if (password.length < 8) {
@@ -56,6 +51,7 @@ const CreateUser = async (req, res) => {
       email,
       phoneNumber,
       password: hashedPassword,
+      address,
     });
 
     await newUser.save();
