@@ -5,7 +5,7 @@ const validator = require("validator"); // For email and phone validation
 // Create a new user
 const CreateUser = async (req, res) => {
   try {
-    const { fullName, email, phoneNumber, password, confirmPassword, address } = req.body;
+    const { fullName, email, phoneNumber, password, confirmPassword } = req.body;
 
     // // Validate inputs
     // if (!fullName || !email || !phoneNumber || !password || !confirmPassword) {
@@ -43,7 +43,6 @@ const CreateUser = async (req, res) => {
       email,
       phoneNumber,
       password: hashedPassword,
-      address,
     });
 
     await newUser.save();
