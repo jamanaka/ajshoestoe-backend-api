@@ -116,4 +116,40 @@ const Login = async (req, res) => {
   }
 };
 
-// Other functions remain the same...
+// Logout user
+const Logout = async (req, res) => {
+  try {
+    // Destroy session
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ message: "Logout failed", error: err.message });
+      }
+
+      // Clear session cookie
+      res.clearCookie("connect.sid");
+
+      res.status(200).json({ message: "Logout successful" });
+    });
+  } catch (error) {
+    console.error("Error in Logout:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// Get all users (for testing purposes)
+const GetUser = async (req, res) => {
+  try {
+    const users = await User.find().select("-password"); // Exclude passwords from response
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error in GetUser:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+module.exports = {
+  CreateUser,
+  Login,
+  Logout,
+  GetUser,
+};
