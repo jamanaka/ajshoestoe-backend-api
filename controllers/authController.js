@@ -5,7 +5,8 @@ const validator = require("validator");
 // Create a new user
 const CreateUser = async (req, res) => {
   try {
-    const { fullName, email, phoneNumber, password, confirmPassword } = req.body;
+    const { fullName, email, phoneNumber, password, confirmPassword } =
+      req.body;
 
     // Validate inputs
     // if (!fullName || !email || !phoneNumber || !password || !confirmPassword) {
@@ -17,14 +18,23 @@ const CreateUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid email format" });
     }
 
-    // Validate phone number format
-    if (!validator.isMobilePhone(phoneNumber, "any")) {
-      return res.status(400).json({ message: "Invalid phone number format" });
+    // // Validate phone number format
+    // if (!validator.isMobilePhone(phoneNumber, "any")) {
+    //   return res.status(400).json({ message: "Invalid phone number format" });
+    // }
+    const existingPhoneNumber = await User.findOne({
+      phoneNumber: req.body.phoneNumber,
+    });
+
+    if (existingPhoneNumber) {
+      return res.status(400).json({ error: "Phone number already in use" });
     }
 
     // Check password length
     if (password.length < 8) {
-      return res.status(400).json({ message: "Password must be at least 8 characters" });
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 8 characters" });
     }
 
     // Check if passwords match
@@ -56,15 +66,15 @@ const CreateUser = async (req, res) => {
     const userResponse = { ...newUser.toObject() };
     delete userResponse.password;
 
-    res.status(201).json({ 
-      message: "User created successfully", 
-      user: userResponse 
+    res.status(201).json({
+      message: "User created successfully",
+      user: userResponse,
     });
   } catch (error) {
     console.error("Error in CreateUser:", error);
-    res.status(500).json({ 
-      message: "Server error", 
-      error: error.message 
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
     });
   }
 };
@@ -76,7 +86,9 @@ const Login = async (req, res) => {
 
     // Validate inputs
     if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required" });
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
     }
 
     // Find user by email
@@ -102,16 +114,15 @@ const Login = async (req, res) => {
     const userResponse = { ...user.toObject() };
     delete userResponse.password;
 
-    res.status(200).json({ 
-      message: "Login successful", 
-      user: userResponse 
+    res.status(200).json({
+      message: "Login successful",
+      user: userResponse,
     });
-
   } catch (error) {
     console.error("Error in Login:", error);
-    res.status(500).json({ 
-      message: "Server error", 
-      error: error.message 
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
     });
   }
 };
@@ -122,7 +133,9 @@ const Logout = async (req, res) => {
     // Destroy session
     req.session.destroy((err) => {
       if (err) {
-        return res.status(500).json({ message: "Logout failed", error: err.message });
+        return res
+          .status(500)
+          .json({ message: "Logout failed", error: err.message });
       }
 
       // Clear session cookie
