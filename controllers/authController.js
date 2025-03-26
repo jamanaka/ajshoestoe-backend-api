@@ -22,13 +22,6 @@ const CreateUser = async (req, res) => {
     // if (!validator.isMobilePhone(phoneNumber, "any")) {
     //   return res.status(400).json({ message: "Invalid phone number format" });
     // }
-    const existingPhoneNumber = await User.findOne({
-      phoneNumber: req.body.phoneNumber,
-    });
-
-    if (existingPhoneNumber) {
-      return res.status(400).json({ error: "Phone number already in use" });
-    }
 
     // Check password length
     if (password.length < 8) {
@@ -46,6 +39,11 @@ const CreateUser = async (req, res) => {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(409).json({ message: "User already exists" });
+    }
+
+    const existingPhoneNumber = await User.findOne({ phoneNumber });
+    if (existingPhoneNumber) {
+      return res.status(400).json({ error: "Phone number already in use" });
     }
 
     // Hash the password
