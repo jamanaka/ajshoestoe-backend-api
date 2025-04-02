@@ -1,3 +1,4 @@
+const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const bcrypt = require("bcryptjs");
 const validator = require("validator");
@@ -117,7 +118,8 @@ const Login = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Login successful",
-      user: userResponse
+      user: userResponse,
+      token // Also send token in response if needed by frontend
     });
 
   } catch (error) {
@@ -129,7 +131,6 @@ const Login = async (req, res) => {
     });
   }
 };
-
 // Logout user
 const Logout = async (req, res) => {
   try {
