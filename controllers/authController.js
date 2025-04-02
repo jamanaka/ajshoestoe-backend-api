@@ -80,9 +80,7 @@ const Login = async (req, res) => {
 
     // Validate inputs
     if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Email and password are required" });
+      return res.status(400).json({ message: "Email and password are required" });
     }
 
     // Find user by email
@@ -91,30 +89,41 @@ const Login = async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    // Check if password is correct
+    // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    // Set session data
-    req.session.user = {
-      id: user._id,
-      email: user.email,
-      fullName: user.fullName,
-    };
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
 
-    // Respond with success message
+    // Set token in HTTP-only cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    });
+
+    // Remove password from user data
     const userResponse = { ...user.toObject() };
     delete userResponse.password;
 
     res.status(200).json({
+      success: true,
       message: "Login successful",
-      user: userResponse,
+      user: userResponse
     });
+
   } catch (error) {
     console.error("Error in Login:", error);
     res.status(500).json({
+      success: false,
       message: "Server error",
       error: error.message,
     });
