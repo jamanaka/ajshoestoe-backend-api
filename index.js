@@ -45,6 +45,7 @@ app.use((err, req, res, next) => {
 mongoose.connect(process.env.MONGO_URI, {
   retryWrites: true, // Enable retryable writes
   w: 'majority', // Write concern for majority of replicas
+  tls: true, // Enable TLS for secure connection
 })
   .then(() => console.log("✅ Connected to MongoDB"))
   .catch((err) => {
