@@ -10,19 +10,12 @@ const app = express();
 
 app.use(cookieParser());
 app.use(express.json());
-const allowedOrigins = ["http://localhost:3000", "https://ajshoestore.vercel.app"];
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ["POST", "GET", "PUT", "DELETE"],
-  credentials: true,
-  exposedHeaders: ["set-cookie"],
+  origin: ["http://localhost:3000", "https://ajshoestore.vercel.app"],
+  credentials: true, // This is crucial
+  methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
+  exposedHeaders: ["set-cookie"] // Needed for cookies
 }));
 
 app.set('trust proxy', 1); // Trust the first proxy

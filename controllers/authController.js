@@ -81,7 +81,9 @@ const Login = async (req, res) => {
 
     // Validate inputs
     if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required" });
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
     }
 
     // Find user by email
@@ -97,18 +99,16 @@ const Login = async (req, res) => {
     }
 
     // Generate JWT token
-    const token = jwt.sign(
-      { userId: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "24h",
+    });
 
     // Set token in HTTP-only cookie
-    res.cookie('token', token, {
+    res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
     // Remove password from user data
@@ -118,10 +118,9 @@ const Login = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Login successful",
-      user: userResponse
+      user: userResponse,
       // Don't send token in response body - it's in the cookie
     });
-
   } catch (error) {
     console.error("Error in Login:", error);
     res.status(500).json({
@@ -136,7 +135,7 @@ const Login = async (req, res) => {
 const Logout = async (req, res) => {
   try {
     // Clear the token cookie
-    res.clearCookie('token');
+    res.clearCookie("token");
     res.status(200).json({ success: true, message: "Logout successful" });
   } catch (error) {
     console.error("Error in Logout:", error);
@@ -160,7 +159,7 @@ const GetUser = async (req, res) => {
 const checkAuth = async (req, res) => {
   try {
     const token = req.cookies.token;
-    
+
     if (!token) {
       return res.status(401).json({ success: false, message: "Unauthorized" });
     }
@@ -169,23 +168,23 @@ const checkAuth = async (req, res) => {
     const user = await User.findById(decoded.userId).select("-password");
 
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
-    res.status(200).json({ 
-      success: true, 
-      user 
+    res.status(200).json({
+      success: true,
+      user,
     });
-
   } catch (error) {
     console.log("Error in checkAuth ", error);
-    res.status(500).json({ 
-      success: false, 
-      message: error.message 
+    res.status(500).json({
+      success: false,
+      message: error.message,
     });
   }
 };
-
 
 module.exports = {
   CreateUser,
