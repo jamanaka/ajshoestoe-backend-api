@@ -21,6 +21,8 @@ app.use(cors({
   },
   methods: ["POST", "GET", "PUT", "DELETE"],
   credentials: true,
+  exposedHeaders: ["set-cookie"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
 app.set('trust proxy', 1); // Trust the first proxy

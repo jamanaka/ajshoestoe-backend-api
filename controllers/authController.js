@@ -97,11 +97,11 @@ const Login = async (req, res) => {
     }
 
     // Generate JWT token
-    const token = jwt.sign(
-      { userId: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
+    // const token = jwt.sign(
+    //   { userId: user._id },
+    //   process.env.JWT_SECRET,
+    //   { expiresIn: '24h' }
+    // );
 
     // Set token in HTTP-only cookie
     res.cookie('token', token, {
@@ -119,7 +119,7 @@ const Login = async (req, res) => {
       success: true,
       message: "Login successful",
       user: userResponse,
-      token // Also send token in response if needed by frontend
+      // token // Also send token in response if needed by frontend
     });
 
   } catch (error) {
@@ -165,19 +165,36 @@ const GetUser = async (req, res) => {
 };
 
 // checkAuth
+// Correct checkAuth controller (backend)
 const checkAuth = async (req, res) => {
   try {
-      const user = await User.findById(req.userId).select("-password");
-      if (!user) {
-          return res.status(400).json({ success: false, message: "User not found" });
-      }
+    const token = req.cookies.token;
+    
+    if (!token) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
 
-      res.status(200).json({ success: true, user });
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    res.status(200).json({ 
+      success: true, 
+      user 
+    });
+
   } catch (error) {
-      console.log("Error in checkAuth ", error);
-      res.status(400).json({ success: false, message: error.message });
+    console.log("Error in checkAuth ", error);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message 
+    });
   }
 };
+
 
 module.exports = {
   CreateUser,
