@@ -1,103 +1,60 @@
 require("dotenv").config();
 const express = require("express");
+const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const mongoose = require("mongoose");
 const cors = require("cors");
+const MongoStore = require('connect-mongo');
+
 const app = express();
 
-// Middleware Setup
 app.use(cookieParser());
 app.use(express.json());
-
-// Enhanced CORS Configuration
 app.use(cors({
-  origin: [
-    "http://localhost:3000", 
-    "https://ajshoestore.vercel.app",
-    "https://www.ajshoestore.com"  // Added canonical domain
-  ],
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  origin: ["http://localhost:3000", "https://ajshoestore.vercel.app"],
+  credentials: true, // This is crucial
+  methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
-  exposedHeaders: ["set-cookie"],
-  maxAge: 86400  // Preflight cache for 24 hours
+  exposedHeaders: ["set-cookie"] // Needed for cookies
 }));
 
-// Trust first proxy in production
-app.set('trust proxy', process.env.NODE_ENV === 'production');
+app.set('trust proxy', 1); // Trust the first proxy
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // True in production
+    maxAge: 1000 * 60 * 60 * 24, // 1 day
+    httpOnly: true,
+    sameSite: 'none' // Add SameSite attribute for CSRF protection
+  }
+}));
 
-// Database Connection
-mongoose.connect(process.env.MONGO_URI, {
-  retryWrites: true,
-  w: 'majority',
-  tls: true,
-  serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000
-})
-.then(() => console.log("✅ Connected to MongoDB"))
-.catch((err) => {
-  console.error("❌ MongoDB connection error:", err);
-  process.exit(1);
-});
-
-// Rate Limiting (Security)
-const rateLimit = require('express-rate-limit');
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200, // Limit each IP to 200 requests per window
-  standardHeaders: true,
-  legacyHeaders: false
-});
-app.use(limiter);
-
-// Enhanced Error Handling
 app.use((err, req, res, next) => {
-  console.error(`[${new Date().toISOString()}] Error:`, err.stack);
-  
-  res.status(500).json({ 
-    success: false,
-    error: process.env.NODE_ENV === 'production' 
-      ? 'Internal server error' 
-      : err.message,
-    code: 'SERVER_ERROR'
-  });
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
 });
 
-// Routes
+mongoose.connect(process.env.MONGO_URI, {
+  retryWrites: true, // Enable retryable writes
+  w: 'majority', // Write concern for majority of replicas
+  tls: true, // Enable TLS for secure connection
+})
+  .then(() => console.log("✅ Connected to MongoDB"))
+  .catch((err) => {
+    console.error("❌ MongoDB connection error:", err);
+    process.exit(1); // Exit the process if MongoDB connection fails
+  });
 const authRoute = require("./routes/authRoute");
+
+app.get("/", (req, res) => {
+  res.send("Hello, AJ Shoe Store Express.js Backend!");
+});
 app.use("/api/auth", authRoute);
 
-// Health Check Endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    dbStatus: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
-  });
-});
-
-// Root Endpoint
-app.get("/", (req, res) => {
-  res.json({
-    message: "AJ Shoe Store API",
-    version: "1.0.0",
-    documentation: "https://docs.ajshoestore.com"
-  });
-});
-
-// Start Server
 const PORT = process.env.PORT || 5000;
-const server = app.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
-});
-
-// Graceful Shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received. Shutting down gracefully...');
-  server.close(() => {
-    mongoose.connection.close(false, () => {
-      console.log('Server and DB connections closed');
-      process.exit(0);
-    });
-  });
 });
