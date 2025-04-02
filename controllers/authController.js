@@ -97,11 +97,11 @@ const Login = async (req, res) => {
     }
 
     // Generate JWT token
-    // const token = jwt.sign(
-    //   { userId: user._id },
-    //   process.env.JWT_SECRET,
-    //   { expiresIn: '24h' }
-    // );
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
 
     // Set token in HTTP-only cookie
     res.cookie('token', token, {
@@ -118,8 +118,8 @@ const Login = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Login successful",
-      user: userResponse,
-      // token // Also send token in response if needed by frontend
+      user: userResponse
+      // Don't send token in response body - it's in the cookie
     });
 
   } catch (error) {
@@ -131,22 +131,13 @@ const Login = async (req, res) => {
     });
   }
 };
+
 // Logout user
 const Logout = async (req, res) => {
   try {
-    // Destroy session
-    req.session.destroy((err) => {
-      if (err) {
-        return res
-          .status(500)
-          .json({ message: "Logout failed", error: err.message });
-      }
-
-      // Clear session cookie
-      res.clearCookie("connect.sid");
-
-      res.status(200).json({ message: "Logout successful" });
-    });
+    // Clear the token cookie
+    res.clearCookie('token');
+    res.status(200).json({ success: true, message: "Logout successful" });
   } catch (error) {
     console.error("Error in Logout:", error);
     res.status(500).json({ message: "Server error", error: error.message });
