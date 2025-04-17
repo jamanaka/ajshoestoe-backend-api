@@ -52,8 +52,8 @@ const sessionConfig = {
   store: store, // Ensure this is defined (e.g., Redis in prod)
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', // HTTPS-only in prod
-    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+    // secure: process.env.NODE_ENV === 'production', // HTTPS-only in prod
+    // sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
     maxAge: 24 * 60 * 60 * 1000, // 1 day
   },
 };
