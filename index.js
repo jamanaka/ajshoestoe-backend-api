@@ -38,8 +38,8 @@ const corsOptions = {
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  exposedHeaders: ['set-cookie'],
-  optionsSuccessStatus: 200 // For legacy browser support
+  // exposedHeaders: ['set-cookie'],
+  // optionsSuccessStatus: 200 // For legacy browser support
 };
 
 app.use(cors(corsOptions));
