@@ -52,7 +52,7 @@ const sessionConfig = {
   store: store,
   cookie: {
     httpOnly: true,
-    secure: false, // important: allow cookies over HTTP
+    secure: true, // important: allow cookies over HTTP
     sameSite: 'Lax', // safe for local dev
     maxAge: 24 * 60 * 60 * 1000, // 1 day
   }
