@@ -49,11 +49,12 @@ const sessionConfig = {
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  store: store,
+  store: store, // MongoDB/Redis store
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', // HTTPS-only in prod
-    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+    secure: true, // REQUIRED for `sameSite: 'None'`
+    sameSite: 'None', // REQUIRED for cross-domain cookies
+    // Do NOT set 'domain' (Vercel & Render are different domains)
     maxAge: 24 * 60 * 60 * 1000, // 1 day
   },
 };
