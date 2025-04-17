@@ -12,7 +12,7 @@ router.post("/register", createUser);
 router.post("/login", login);
 router.post("/logout", logout);
 
-router.get("/dashboard", isAuthenticated, async (req, res) => {
+router.get("/shop", isAuthenticated, async (req, res) => {
   try {
     // You can fetch data or perform any other operations here
     res.status(200).json({ message: "Dashboard loaded successfully" });
