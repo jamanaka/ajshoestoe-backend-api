@@ -45,6 +45,9 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
 // Session config
+const isProduction = process.env.NODE_ENV === 'production';
+const isLocalhost = process.env.NODE_ENV === 'development'; // or check req.hostname
+
 const sessionConfig = {
   secret: process.env.SESSION_SECRET,
   resave: false,
@@ -52,9 +55,9 @@ const sessionConfig = {
   store: store,
   cookie: {
     httpOnly: true,
-    secure: true, // important: allow cookies over HTTP
-    sameSite: 'Lax', // safe for local dev
-    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    secure: isProduction, // false in localhost, true in production
+    sameSite: isProduction ? 'Lax' : 'None',
+    maxAge: 24 * 60 * 60 * 1000,
   }
 };
 app.use(session(sessionConfig));
