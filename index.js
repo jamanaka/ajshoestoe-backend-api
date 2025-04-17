@@ -45,21 +45,21 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
 // Session config
-const isProduction = process.env.NODE_ENV === 'production';
-const isLocalhost = process.env.NODE_ENV === 'development'; // or check req.hostname
+app.set('trust proxy', 1); // Enable if you're behind a proxy (e.g., Heroku, AWS ELB)
 
 const sessionConfig = {
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  store: store,
+  store: store, // Your session store (e.g., Redis, MongoDB)
   cookie: {
     httpOnly: true,
-    secure: isProduction, // false in localhost, true in production
-    sameSite: isProduction ? 'Lax' : 'None',
-    maxAge: 24 * 60 * 60 * 1000,
-  }
+    secure: process.env.NODE_ENV === 'production', // HTTPS in production, HTTP in dev
+    sameSite: process.env.NODE_ENV === 'production' ? 'Lax' : 'None', // 'None' for local testing
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+  },
 };
+
 app.use(session(sessionConfig));
 
 // Body and cookie parser
