@@ -52,8 +52,8 @@ const sessionConfig = {
   store: store,
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', // use HTTPS only in prod
-    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax', // 'None' requires HTTPS
+    secure: process.env.NODE_ENV === 'production', // HTTPS-only in prod
+    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
     maxAge: 24 * 60 * 60 * 1000, // 1 day
   },
 };
