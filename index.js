@@ -1,10 +1,10 @@
-require("dotenv").config();
-const express = require("express");
+require('dotenv').config();
+const express = require('express');
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
-const cookieParser = require("cookie-parser");
-const mongoose = require("mongoose");
-const cors = require("cors");
+const cookieParser = require('cookie-parser');
+const mongoose = require('mongoose');
+const cors = require('cors');
 
 const app = express();
 
@@ -13,13 +13,13 @@ const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI, {
       retryWrites: true,
-      w: "majority",
-      tls: process.env.NODE_ENV === "production",
+      w: 'majority',
+      tls: process.env.NODE_ENV === 'production',
       tlsAllowInvalidCertificates: false,
     });
-    console.log("✅ MongoDB Connected");
+    console.log('✅ MongoDB Connected');
   } catch (err) {
-    console.error("❌ MongoDB Connection Error:", err);
+    console.error('❌ MongoDB Connection Error:', err);
     process.exit(1);
   }
 };
@@ -33,49 +33,53 @@ const store = new MongoDBStore({
 
 // CORS config (CORS must be applied **before** session)
 const corsOptions = {
-  origin: [process.env.FRONTEND_LOCAL_URL, process.env.FRONTEND_PROD_URL],
+  origin: [
+    process.env.FRONTEND_LOCAL_URL,
+    process.env.FRONTEND_PROD_URL,
+  ],
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 };
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // Session config
 const sessionConfig = {
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET || 'fallback-dev-secret', // Never use a fallback in prod
   resave: false,
-  saveUninitialized: false,
-  store: store,
+  saveUninitialized: false, // Reduces storage usage for unmodified sessions
+  store: store, // Ensure this is defined (e.g., Redis in prod)
   cookie: {
     httpOnly: true,
-    // secure: false, // important: allow cookies over HTTP
-    sameSite: "Lax", // safe for local dev
+    secure: process.env.NODE_ENV === 'production', // HTTPS-only in prod
+    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
     maxAge: 24 * 60 * 60 * 1000, // 1 day
   },
 };
 app.use(session(sessionConfig));
 
 // Body and cookie parser
-app.use(express.json({ limit: "10kb" }));
+app.use(express.json({ limit: '10kb' }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
 // Routes
-app.get("/", (req, res) => {
+app.get('/', (req, res) => {
   res.status(200).json({
-    status: "success",
-    message: "AJ Shoe Store API",
-    documentation: "https://docs.your-api.com",
+    status: 'success',
+    message: 'AJ Shoe Store API',
+    documentation: 'https://docs.your-api.com',
   });
 });
 
 // Auth routes
-app.use("/api/auth", require("./routes/authRoute"));
+app.use('/api/auth', require('./routes/authRoute'));
 
 app.use((req, res, next) => {
-  console.log("Session:", req.session);
+  console.log('Session:', req.session);
   next();
 });
+
 
 // Start server
 const PORT = process.env.PORT || 5000;
