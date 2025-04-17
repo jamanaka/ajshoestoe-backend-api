@@ -46,14 +46,15 @@ app.options('*', cors(corsOptions));
 
 // Session config
 const sessionConfig = {
-  secret: process.env.SESSION_SECRET || 'fallback-dev-secret', // Never use a fallback in prod
+  secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: false, // Reduces storage usage for unmodified sessions
-  store: store, // Ensure this is defined (e.g., Redis in prod)
+  saveUninitialized: false,
+  store: store,
   cookie: {
     httpOnly: true,
-    // secure: process.env.NODE_ENV === 'production', // HTTPS-only in prod
-    sameSite: 'None',
+    secure: true,
+    secure: process.env.NODE_ENV === 'production', // use HTTPS only in prod
+    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax', // 'None' requires HTTPS
     maxAge: 24 * 60 * 60 * 1000, // 1 day
   },
 };
