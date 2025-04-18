@@ -48,11 +48,9 @@ const sessionConfig = {
   saveUninitialized: false,
   store: store,
   ookie: {
-    // httpOnly: true,
-    // secure: process.env.NODE_ENV === 'production', // use HTTPS only in prod
-    // sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax', // 'None' requires HTTPS
+    httpOnly: true,
     secure: true,
-    sameSite: "none",
+    sameSite: "None",
     maxAge: 24 * 60 * 60 * 1000, // 1 day
   },
 };
@@ -73,6 +71,10 @@ app.get("/", (req, res) => {
 
 // Auth routes
 app.use("/api/auth", require("./routes/authRoute"));
+app.post("/auth/login", (req, res) => {
+  // your login logic
+  console.log("Set-Cookie Header:", res.getHeader("Set-Cookie"));
+});
 
 app.use((req, res, next) => {
   console.log("Session:", req.session);
