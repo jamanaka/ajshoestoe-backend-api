@@ -2,12 +2,10 @@ require('dotenv').config();
 const express = require('express');
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
-const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const morgan = require('morgan');
 
 const app = express();
 
@@ -57,8 +55,11 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// Request logging
-app.use(morgan('dev'));
+// Request logging (only in development)
+if (process.env.NODE_ENV !== 'production') {
+  const morgan = require('morgan');
+  app.use(morgan('dev'));
+}
 
 // CORS config (CORS must be applied **before** session)
 const corsOptions = {
@@ -67,7 +68,7 @@ const corsOptions = {
     process.env.FRONTEND_PROD_URL,
   ],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 };
 app.use(cors(corsOptions));
@@ -77,10 +78,9 @@ app.options('*', cors(corsOptions));
 if (process.env.NODE_ENV === 'production') {
   app.use((req, res, next) => {
     if (req.header('x-forwarded-proto') !== 'https') {
-      res.redirect(`https://${req.header('host')}${req.url}`);
-    } else {
-      next();
+      return res.redirect(`https://${req.header('host')}${req.url}`);
     }
+    next();
   });
 }
 
@@ -89,19 +89,18 @@ const sessionConfig = {
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  store: store, // MongoDB/Redis store
+  store: store,
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', // Only HTTPS in production
+    secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
-    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    maxAge: 24 * 60 * 60 * 1000,
   },
 };
 app.use(session(sessionConfig));
 
-// Body and cookie parser
+// Body parser
 app.use(express.json({ limit: '10kb' }));
-app.use(cookieParser(process.env.COOKIE_SECRET));
 
 // Routes
 app.get('/', (req, res) => {
@@ -112,6 +111,9 @@ app.get('/', (req, res) => {
   });
 });
 
+// Explicit HEAD handler for root route
+app.head('/', (req, res) => res.status(200).end());
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'healthy' });
@@ -120,11 +122,13 @@ app.get('/health', (req, res) => {
 // Auth routes
 app.use('/api/auth', require('./routes/authRoute'));
 
-// Debug middleware (consider removing in production)
-app.use((req, res, next) => {
-  console.log('Session:', req.session);
-  next();
-});
+// Debug middleware (only in development)
+if (process.env.NODE_ENV !== 'production') {
+  app.use((req, res, next) => {
+    console.log('Session:', req.session);
+    next();
+  });
+}
 
 // Centralized error handler
 app.use((err, req, res, next) => {
@@ -144,4 +148,7 @@ process.on('SIGINT', () => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
+  if (process.env.NODE_ENV === 'production') {
+    console.log('Production mode: HTTPS enforced');
+  }
 });
